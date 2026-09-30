@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: depguard-backend
+    env_file:
+      - .env
+    environment:
+      APP_ENV: production
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5).status==200 else 1)",
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # URL pública do backend usada pelo bundle do frontend em produção.
+        # Deixe vazio para usar o mesmo host com o prefixo /api (ex.: atrás de um proxy).
+        VITE_API_URL: ${VITE_API_URL:-}
+    container_name: depguard-frontend
+    environment:
+      # nginx (SPA) precisa montar o proxy /api em runtime apontando para o backend
+      API_UPSTREAM: http://backend:8000
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
