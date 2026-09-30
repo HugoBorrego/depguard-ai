@@ -1,0 +1,51 @@
+[project]
+name = "depguard-ai-backend"
+version = "1.0.0"
+description = "Análise Inteligente de Dependências para projetos Node.js"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["app", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "ARG", "C4", "PIE", "RUF"]
+ignore = [
+    "E501",    # o line-length já é controlado pelo formatter
+    "RUF001",  # permite "→" e outros caracteres Unicode em comentários/strings
+    "RUF002",
+    "RUF003",
+    "SIM108",  # if/else explícito é mais legível em alguns casos
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "ARG001",    # fixtures como 'request' são injetadas pelo FastAPI
+    "ARG002",
+    "B011",
+    "RUF012",    # classes Fake usam dicts como default de propósito
+    "RUF043",    # pytest.raises com regex precisa de escaping manual
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "tests"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
+exclude = ["tests/"]
+
+[[tool.mypy.overrides]]
+module = "anthropic.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "slowapi.*"
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/prompts/*"]

@@ -1,0 +1,11 @@
+{
+  "include": ["app", "tests"],
+  "exclude": ["**/node_modules", "**/__pycache__", ".venv"],
+  "typeCheckingMode": "basic",
+  "pythonVersion": "3.12",
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": "none",
+  "reportUnnecessaryTypeIgnoreComment": "warning",
+  "reportImplicitStringConcatenation": "warning",
+  "useLibraryCodeForTypes": true
+}
