@@ -26,8 +26,6 @@
     "exactOptionalPropertyTypes": false,
     "forceConsistentCasingInFileNames": true,
 
-    /* Rutas */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
