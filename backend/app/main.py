@@ -32,7 +32,7 @@ Ferramenta de **Análise Inteligente de Dependências** para projetos Node.js.
 O DepGuard lê o `package.json` de um repositório público do GitHub (ou recebe o
 arquivo por upload), consulta **dados reais** no registro npm e na base de
 vulnerabilidades OSV.dev, aplica regras determinísticas e — quando há
-`ANTHROPIC_API_KEY` — pede a um modelo Claude que classifique o risco de cada
+`OPENAI_API_KEY`, `ANTHROPIC_API_KEY` ou um endpoint local compatível — pede a um modelo que classifique o risco de cada
 dependência, explique o problema em linguagem simples e sugira uma ação concreta.
 
 Cada achado informa sua **origem**: `osv`, `npm_registry`, `regra_local` ou
@@ -59,13 +59,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         settings.app_name,
         settings.app_version,
         settings.app_env,
-        "habilitada" if settings.llm_enabled else "desabilitada (sem ANTHROPIC_API_KEY)",
+        "habilitada" if settings.llm_enabled else "desabilitada (sem provedor configurado)",
         "configurado" if settings.github_token else "não configurado",
         settings.rate_limit_per_minute,
     )
     if not settings.llm_enabled:
         logger.warning(
-            "ANTHROPIC_API_KEY não definida: a análise usará apenas regras determinísticas."
+            "Nenhum provedor de IA configurado: a análise usará apenas regras determinísticas."
         )
 
     try:

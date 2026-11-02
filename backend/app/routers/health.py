@@ -33,6 +33,7 @@ async def health(request: Request) -> HealthResponse:
         version=settings.app_version,
         environment=settings.app_env,
         aiEnabled=settings.llm_enabled,
+        aiProvider=settings.active_llm_provider,
         githubTokenConfigured=bool(settings.github_token),
         cacheEntries=cache_entries,
         serverTime=datetime.now(UTC).isoformat(),

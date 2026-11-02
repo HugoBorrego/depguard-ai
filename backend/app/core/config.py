@@ -30,12 +30,22 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # ---------------------------------------------------------------- llm
+    llm_provider: Literal["auto", "openai", "local", "anthropic", "off"] = "auto"
+    openai_api_key: str | None = Field(default=None, repr=False)
+    openai_model: str = "gpt-4.1-mini"
+    openai_base_url: str = "https://api.openai.com/v1"
+    local_model: str = "llama3.1"
+    local_base_url: str = "http://localhost:11434/v1"
     anthropic_api_key: str | None = Field(default=None, repr=False)
     anthropic_model: str = "claude-sonnet-4-5"
     anthropic_base_url: str | None = None
     llm_max_tokens: int = 8000
     llm_batch_size: int = 12
     llm_batch_concurrency: int = 2
+    # teto por chamada ao modelo. Sem isso um lote travado segura a requisição
+    # inteira pelo timeout default do SDK e o proxy responde 504 antes de o
+    # backend terminar, jogando fora uma análise que já estava pronta.
+    llm_timeout_seconds: float = 60.0
 
     # ---------------------------------------------------------------- github
     github_token: str | None = Field(default=None, repr=False)
@@ -53,7 +63,7 @@ class Settings(BaseSettings):
     osv_concurrency: int = 4
     cache_enabled: bool = True
 
-    @field_validator("anthropic_api_key", "github_token", "anthropic_base_url", mode="before")
+    @field_validator("anthropic_api_key", "openai_api_key", "github_token", "anthropic_base_url", "openai_base_url", "local_base_url", mode="before")
     @classmethod
     def _blank_to_none(cls, value: object) -> object:
         """Trata ``VAR=""`` como ``None`` (comum em arquivos .env)."""
@@ -71,8 +81,18 @@ class Settings(BaseSettings):
 
     @property
     def llm_enabled(self) -> bool:
-        """A IA só é usada quando existe ``ANTHROPIC_API_KEY``."""
-        return bool(self.anthropic_api_key)
+        provider = self.active_llm_provider
+        return provider == "local" or (provider == "openai" and bool(self.openai_api_key)) or (provider == "anthropic" and bool(self.anthropic_api_key))
+
+    @property
+    def active_llm_provider(self) -> str:
+        if self.llm_provider != "auto":
+            return self.llm_provider
+        if self.openai_api_key:
+            return "openai"
+        if self.anthropic_api_key:
+            return "anthropic"
+        return "off"
 
     @property
     def is_production(self) -> bool:
@@ -80,7 +100,10 @@ class Settings(BaseSettings):
 
     def __repr__(self) -> str:  # pragma: no cover - cosmético
         safe = super().__repr__()
-        return safe.replace(str(self.anthropic_api_key), "***")
+        for secret in (self.anthropic_api_key, self.openai_api_key, self.github_token):
+            if secret:
+                safe = safe.replace(secret, "***")
+        return safe
 
 
 @lru_cache(maxsize=1)

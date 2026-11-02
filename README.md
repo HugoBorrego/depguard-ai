@@ -5,9 +5,7 @@ ou um `package.json` enviado por upload, consulta o registro npm e a base de
 vulnerabilidades [OSV.dev](https://osv.dev), e devolve um relatório com achados por
 dependência, impacto e recomendação.
 
-A análise por IA é **opcional**: o relatório é sempre produzido por regras
-determinísticas, e a camada de IA apenas acrescenta leitura e contexto quando há
-`ANTHROPIC_API_KEY` configurada.
+A análise por IA é **opcional**: o relatório é sempre produzido por regras determinísticas. Configure uma chave da OpenAI (`OPENAI_API_KEY`), Anthropic ou um modelo local via Ollama (`LLM_PROVIDER=local`).
 
 ---
 
@@ -69,7 +67,7 @@ Pré-requisito: Docker Desktop ou Docker Engine com Compose v2.
 
 ```bash
 cp .env.example .env
-# opcional: edite .env e defina ANTHROPIC_API_KEY para ligar a IA
+# opcional: defina OPENAI_API_KEY ou configure LLM_PROVIDER=local no .env
 
 docker compose up --build
 ```
@@ -81,8 +79,7 @@ O container do frontend serve a SPA pelo nginx e faz proxy de `/api` para o
 backend, então o navegador só conversa com uma origem. O proxy é montado em
 runtime via `API_UPSTREAM`, sem rebuild.
 
-Para desligar a IA, basta deixar `ANTHROPIC_API_KEY` vazio no `.env` — não é
-preciso alterar código nem rebuildar a imagem.
+Para OpenAI, preencha `OPENAI_API_KEY`. Para Ollama local, configure `LLM_PROVIDER=local`, `LOCAL_MODEL` e `LOCAL_BASE_URL` no `.env`. Em Docker, use `http://host.docker.internal:11434/v1` como URL local. Com `LLM_PROVIDER=auto` (padrão), OpenAI é escolhido quando há chave; caso contrário Anthropic é usada se configurada. Sem credenciais, o app segue com as regras determinísticas.
 
 ---
 
@@ -126,7 +123,13 @@ Todas vivem no `.env` da raiz (veja `.env.example`). As mais relevantes:
 
 | Variável | Padrão | Efeito |
 | --- | --- | --- |
-| `ANTHROPIC_API_KEY` | *(vazia)* | Liga a análise por IA. Vazia = só regras determinísticas. |
+| `LLM_PROVIDER` | `auto` | `openai`, `local`, `anthropic`, `off` ou seleção automática. |
+| `OPENAI_API_KEY` | *(vazia)* | Chave da API OpenAI, mantida apenas no backend. |
+| `OPENAI_MODEL` | `gpt-4.1-mini` | Modelo OpenAI. |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Endpoint compatível com OpenAI. |
+| `LOCAL_MODEL` | `llama3.1` | Modelo servido por Ollama ou endpoint compatível. |
+| `LOCAL_BASE_URL` | `http://localhost:11434/v1` | Endpoint local compatível com OpenAI. No Docker, use `host.docker.internal`. |
+| `ANTHROPIC_API_KEY` | *(vazia)* | Chave Anthropic, usada quando `LLM_PROVIDER=anthropic` ou `auto`. |
 | `ANTHROPIC_MODEL` | `claude-sonnet-4-5` | Modelo usado nos lotes. |
 | `GITHUB_TOKEN` | *(vazia)* | Sobe o rate limit do GitHub de 60 para 5000 req/h **e habilita repositórios privados**. |
 | `CORS_ORIGINS` | `http://localhost:5173,...` | Origens permitidas, separadas por vírgula. |
@@ -137,9 +140,7 @@ Todas vivem no `.env` da raiz (veja `.env.example`). As mais relevantes:
 | `CACHE_ENABLED` | `true` | Cache em memória do registry. |
 | `VITE_API_URL` | *(vazia)* | URL pública do backend para o bundle do frontend. |
 
-A chave da Anthropic é usada **apenas no backend**. Ela nunca é exposta ao
-navegador, não aparece nos logs e não é devolvida por `/api/health` (que responde
-só com booleanos como `aiEnabled`).
+As chaves da OpenAI e Anthropic ficam **apenas no backend**. Elas nunca são expostas ao navegador nem devolvidas por `/api/health`, que informa somente o provedor ativo e booleanos de status.
 
 ---
 

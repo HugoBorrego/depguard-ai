@@ -133,6 +133,11 @@ class LLMAnalyzer:
     @property
     def model(self) -> str:
         """Modelo configurado em ``ANTHROPIC_MODEL``."""
+        provider = self.settings.active_llm_provider
+        if provider == "openai":
+            return self.settings.openai_model
+        if provider == "local":
+            return self.settings.local_model
         return self.settings.anthropic_model
 
     def _get_client(self) -> Any:
@@ -155,6 +160,7 @@ class LLMAnalyzer:
             api_key=self.settings.anthropic_api_key,
             base_url=self.settings.anthropic_base_url,
             max_retries=0,
+            timeout=self.settings.llm_timeout_seconds,
         )
         return self._client
 
@@ -170,6 +176,30 @@ class LLMAnalyzer:
     # ------------------------------------------------------------ chamada
     async def _call_model(self, system_prompt: str, user_prompt: str) -> str:
         """Faz uma chamada ao Claude e devolve o texto bruto da resposta."""
+        provider = self.settings.active_llm_provider
+        if provider in ("openai", "local"):
+            import httpx
+
+            base_url = self.settings.openai_base_url if provider == "openai" else self.settings.local_base_url
+            api_key = self.settings.openai_api_key if provider == "openai" else "ollama"
+            async with httpx.AsyncClient(timeout=self.settings.llm_timeout_seconds) as client:
+                response = await client.post(
+                    f"{base_url.rstrip('/')}/chat/completions",
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    json={
+                        "model": self.model,
+                        "max_tokens": self.settings.llm_max_tokens,
+                        "temperature": TEMPERATURE,
+                        "response_format": {"type": "json_object"},
+                        "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                    },
+                )
+                response.raise_for_status()
+                data = response.json()
+            return str(data["choices"][0]["message"]["content"] or "").strip()
         client = self._get_client()
         response = await client.messages.create(
             model=self.model,
@@ -260,7 +290,8 @@ class LLMAnalyzer:
         """Analisa todas as dependências, em lotes paralelos e controlados.
 
         Returns:
-            Mapa ``nome_do_pacote -> LLMFinding``. Pacotes sem resultado (lote
+            Mapa `
+ome_do_pacote -> LLMFinding``. Pacotes sem resultado (lote
             que falhou) simplesmente não aparecem no mapa, e o chamador mantém a
             classificação determinística deles.
         """

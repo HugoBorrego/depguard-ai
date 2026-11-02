@@ -158,6 +158,7 @@ class HealthResponse(BaseModel):
     version: str
     environment: str
     aiEnabled: bool
+    aiProvider: str
     githubTokenConfigured: bool
     cacheEntries: int = 0
     serverTime: str
