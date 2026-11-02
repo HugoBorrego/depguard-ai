@@ -3,6 +3,7 @@
 import { STEPS } from "@/hooks/useAnalysis";
 import { STEP_LABELS, type ProgressStep } from "@/types/api";
 import { Spinner } from "./ui";
+import { Icon } from "./Icon";
 
 export function ProgressBar({
   stepIndex,
@@ -78,7 +79,7 @@ export function ProgressBar({
                       : "bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500"
                 }`}
               >
-                {state === "done" ? "✓" : index + 1}
+                {state === "done" ? <Icon name="check" className="h-3 w-3" /> : index + 1}
               </span>
               <span
                 className={

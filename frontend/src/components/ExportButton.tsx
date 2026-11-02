@@ -2,6 +2,7 @@
 
 import { buildExportPayload, downloadText, exportFilename } from "@/lib/format";
 import type { AnalysisReport, DependencyFinding } from "@/types/api";
+import { Icon } from "./Icon";
 
 export function ExportButton({
   report,
@@ -27,7 +28,7 @@ export function ExportButton({
       onClick={handleClick}
       title="Baixar o relatório completo em JSON"
     >
-      <span aria-hidden="true">⭳</span>
+      <Icon name="file" />
       Exportar JSON
     </button>
   );

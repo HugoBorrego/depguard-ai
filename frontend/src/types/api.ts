@@ -102,6 +102,7 @@ export interface HealthResponse {
   version: string;
   environment: string;
   aiEnabled: boolean;
+  aiProvider: string;
   githubTokenConfigured: boolean;
   cacheEntries: number;
   serverTime: string;
@@ -157,10 +158,10 @@ export const SOURCE_LABELS: Record<IssueSource, string> = {
 };
 
 export const STEP_LABELS: Record<ProgressStep, string> = {
-  lendo_package_json: "Lendo package.json",
-  consultando_npm: "Consultando registro npm",
-  consultando_vulnerabilidades: "Consultando vulnerabilidades",
-  aplicando_regras: "Aplicando regras",
-  analisando_com_ia: "Analisando com IA",
+  lendo_package_json: "Preparando análise",
+  consultando_npm: "Verificando dependências",
+  consultando_vulnerabilidades: "Verificando vulnerabilidades",
+  aplicando_regras: "Identificando riscos",
+  analisando_com_ia: "Gerando recomendações",
   finalizando: "Finalizando",
 };

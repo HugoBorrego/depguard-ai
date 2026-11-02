@@ -1,71 +1,6 @@
-/** Cabeçalho: marca, status da API, status da IA e alternância de tema. */
-
 import { useHealth } from "@/hooks/useHealth";
 import type { Theme } from "@/hooks/useTheme";
-import { Spinner } from "./ui";
-
-function ApiStatusBadge() {
-  const { status, health, error, refresh } = useHealth();
-
-  if (status === "checking") {
-    return (
-      <span className="badge border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-        <Spinner className="h-3 w-3" />
-        Conectando…
-      </span>
-    );
-  }
-
-  if (status === "offline") {
-    return (
-      <button
-        type="button"
-        onClick={refresh}
-        title={error ?? "Backend inacessível. Clique para tentar de novo."}
-        className="badge border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300"
-      >
-        <span
-          className="h-1.5 w-1.5 rounded-full bg-red-500"
-          aria-hidden="true"
-        />
-        API offline — clique para reconectar
-      </button>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={refresh}
-      title={`API ${health?.status ?? "online"} (v${health?.version ?? "?"})`}
-      className="badge border-ok-300 bg-ok-50 text-ok-700 hover:bg-ok-100 dark:border-ok-700 dark:bg-ok-950/50 dark:text-ok-300"
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-ok-500" aria-hidden="true" />
-      API online
-    </button>
-  );
-}
-
-function AiBadge() {
-  const { status, health } = useHealth();
-  if (status !== "online" || !health) return null;
-
-  return health.aiEnabled ? (
-    <span
-      className="badge border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
-      title={`Análise por IA ativa: ${health.environment}`}
-    >
-      ✦ IA ativa
-    </span>
-  ) : (
-    <span
-      className="badge border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-      title="Sem ANTHROPIC_API_KEY no backend: somente regras determinísticas"
-    >
-      IA desativada
-    </span>
-  );
-}
+import { Icon } from "@/components/Icon";
 
 export function Header({
   theme,
@@ -74,50 +9,37 @@ export function Header({
   theme: Theme;
   onToggleTheme: () => void;
 }) {
+  const { status, refresh } = useHealth();
+  const connected = status === "online";
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur dark:border-slate-800 dark:bg-slate-900/85">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
-        <a
-          href="/"
-          className="flex items-center gap-2.5 rounded"
-          aria-label="DepGuard AI — início"
-        >
-          <img
-            src="/shield.svg"
-            alt=""
-            className="h-8 w-8"
-            width={32}
-            height={32}
-          />
-          <span className="flex flex-col leading-none">
-            <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-              DepGuard
-            </span>
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400">
-              AI
-            </span>
+    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/85">
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3.5 sm:px-6">
+        <a href="/" className="flex items-center gap-3 rounded" aria-label="DepGuard, início">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-600/20">
+            <Icon name="shield" className="h-5 w-5" />
           </span>
+          <span className="text-lg font-bold tracking-tight text-slate-950 dark:text-white">DepGuard</span>
         </a>
 
-        <p className="ml-2 hidden text-sm text-slate-500 dark:text-slate-400 md:block">
-          Análise de dependências Node.js com dados reais do npm e do OSV
-        </p>
-
-        <div className="ml-auto flex items-center gap-2">
-          <AiBadge />
-          <ApiStatusBadge />
+        <div className="ml-auto flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={refresh}
+            title={connected ? "Tudo pronto" : status === "offline" ? "Tentar novamente" : "Conectando"}
+            aria-label={connected ? "Serviço pronto" : status === "offline" ? "Serviço indisponível, tentar novamente" : "Conectando"}
+            className="inline-flex h-9 items-center gap-2 rounded-full border border-slate-200 px-3 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900"
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${connected ? "bg-emerald-500" : status === "offline" ? "bg-red-500" : "animate-pulse bg-amber-500"}`} />
+            <span className="hidden sm:inline">{connected ? "Pronto" : status === "offline" ? "Indisponível" : "Conectando"}</span>
+          </button>
           <button
             type="button"
             onClick={onToggleTheme}
             className="btn-ghost h-9 w-9 !p-0"
-            aria-label={
-              theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"
-            }
+            aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
             title={theme === "dark" ? "Tema claro" : "Tema escuro"}
           >
-            <span aria-hidden="true" className="text-base">
-              {theme === "dark" ? "☀" : "☾"}
-            </span>
+            <Icon name={theme === "dark" ? "sun" : "moon"} className="h-[18px] w-[18px]" />
           </button>
         </div>
       </div>

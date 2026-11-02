@@ -106,32 +106,10 @@ export function ProjectCard({ report }: { report: AnalysisReport }) {
           </dl>
         </div>
 
-        <div className="text-right text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-          <p>
-            Analisado em{" "}
-            <time dateTime={meta.analyzedAt}>
-              {formatDate(meta.analyzedAt)}
-            </time>
-          </p>
-          <p>{formatDuration(meta.durationMs)}</p>
-          <p>
-            {meta.aiEnabled ? (
-              <span
-                title={meta.aiModel ?? undefined}
-                className="text-indigo-600 dark:text-indigo-400"
-              >
-                ✦ IA {meta.aiBatches} lote(s)
-                {meta.aiFailures > 0 ? ` · ${meta.aiFailures} falha(s)` : ""}
-              </span>
-            ) : (
-              <span title="Sem ANTHROPIC_API_KEY configurada">
-                Somente regras locais
-              </span>
-            )}
-          </p>
-          {meta.npmEtagCache ? (
-            <p>{meta.npmEtagCache} resposta(s) do npm em cache</p>
-          ) : null}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400 sm:justify-end">
+          <time dateTime={meta.analyzedAt}>{formatDate(meta.analyzedAt)}</time>
+          <span>{formatDuration(meta.durationMs)}</span>
+          {meta.aiEnabled ? <span className="rounded-full bg-blue-50 px-2 py-1 font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">Análise inteligente</span> : null}
         </div>
       </div>
     </div>

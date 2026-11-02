@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { SEVERITY_STYLES } from "@/lib/format";
 import type { Severity } from "@/types/api";
+import { Icon, type IconName } from "./Icon";
 
 // ==========================================================
 // Badge
@@ -70,15 +71,15 @@ export function EmptyState({
   description,
   action,
 }: {
-  icon: string;
+  icon?: IconName;
   title: string;
   description: string;
   action?: ReactNode;
 }) {
   return (
     <div className="card flex flex-col items-center gap-3 px-6 py-14 text-center">
-      <div className="text-4xl" aria-hidden="true">
-        {icon}
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400" aria-hidden="true">
+        <Icon name={icon ?? "check"} className="h-7 w-7" />
       </div>
       <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
         {title}
@@ -103,10 +104,10 @@ const ALERT_STYLES: Record<"error" | "warning" | "info", string> = {
   info: "border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200",
 };
 
-const ALERT_ICONS: Record<"error" | "warning" | "info", string> = {
-  error: "✕",
-  warning: "⚠",
-  info: "ℹ",
+const ALERT_ICONS: Record<"error" | "warning" | "info", IconName> = {
+  error: "alert",
+  warning: "alert",
+  info: "info",
 };
 
 export function Alert({
@@ -125,9 +126,7 @@ export function Alert({
       role={variant === "error" ? "alert" : "status"}
       className={`animate-slide-down flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${ALERT_STYLES[variant]}`}
     >
-      <span className="mt-0.5 shrink-0 font-bold" aria-hidden="true">
-        {ALERT_ICONS[variant]}
-      </span>
+      <Icon name={ALERT_ICONS[variant]} className="mt-0.5 h-4 w-4 shrink-0" />
       <div className="min-w-0 flex-1 space-y-1">
         <p className="font-semibold">{title}</p>
         {children ? (
@@ -141,7 +140,7 @@ export function Alert({
           className="shrink-0 rounded p-1 opacity-60 transition-opacity hover:opacity-100"
           aria-label="Fechar aviso"
         >
-          ✕
+          <Icon name="close" className="h-4 w-4" />
         </button>
       ) : null}
     </div>

@@ -4,6 +4,7 @@ import { useCallback, useId, useRef, useState, type DragEvent } from "react";
 
 import { formatDownloads } from "@/lib/format";
 import { Spinner } from "./ui";
+import { Icon } from "./Icon";
 
 const MAX_SIZE_BYTES = 1024 * 1024; // mesmo limite do backend
 const MAX_SIZE_LABEL = formatDownloads(MAX_SIZE_BYTES).replace("/semana", "");
@@ -75,9 +76,7 @@ export function UploadForm({
             : "border-slate-300 hover:border-blue-400 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-blue-600 dark:hover:bg-slate-800/50"
         } ${loading ? "pointer-events-none opacity-60" : ""}`}
       >
-        <span className="text-3xl" aria-hidden="true">
-          {file ? "📄" : "📦"}
-        </span>
+        <span className="mb-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" aria-hidden="true"><Icon name={file ? "file" : "upload"} className="h-7 w-7" /></span>
 
         {file ? (
           <span className="space-y-1">
@@ -127,7 +126,7 @@ export function UploadForm({
           disabled={loading || !file}
           onClick={() => file && onSubmit(file)}
         >
-          {loading ? <Spinner /> : "🛡"}
+          {loading ? <Spinner /> : <Icon name="shield" />}
           {loading ? "Analisando…" : "Analisar arquivo"}
         </button>
         {file ? (
@@ -140,9 +139,6 @@ export function UploadForm({
             Limpar
           </button>
         ) : null}
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          O arquivo é processado em memória e nunca é armazenado no servidor.
-        </p>
       </div>
     </div>
   );

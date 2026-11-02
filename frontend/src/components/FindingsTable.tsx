@@ -16,6 +16,7 @@ import {
   type SortKey,
 } from "@/lib/format";
 import type { DependencyFinding } from "@/types/api";
+import { Icon } from "./Icon";
 import { CopyButton, SeverityBadge } from "./ui";
 
 interface ColumnDef {
@@ -132,9 +133,7 @@ function DetailRow({ finding }: { finding: DependencyFinding }) {
                       className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900"
                     >
                       <div className="flex flex-wrap items-center gap-2">
-                        <span aria-hidden="true">
-                          {ISSUE_TYPE_ICONS[issue.type]}
-                        </span>
+                        <Icon name={ISSUE_TYPE_ICONS[issue.type]} className="h-4 w-4 text-slate-500" />
                         <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                           {issue.type}
                         </span>
@@ -396,9 +395,7 @@ export function FindingsTable({
                               className="badge border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                               title={type}
                             >
-                              <span aria-hidden="true">
-                                {ISSUE_TYPE_ICONS[type]}
-                              </span>
+                              <Icon name={ISSUE_TYPE_ICONS[type]} className="h-3 w-3" />
                               {
                                 finding.issues.filter(
                                   (issue) => issue.type === type,

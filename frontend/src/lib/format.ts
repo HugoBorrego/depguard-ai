@@ -85,16 +85,16 @@ export function compareSeverity(a: Severity, b: Severity): number {
 
 export const ISSUE_SOURCE_LABELS: Record<IssueSource, string> = SOURCE_LABELS;
 
-export const ISSUE_TYPE_ICONS: Record<IssueType, string> = {
-  vulnerability: "⚠",
-  deprecated: "⛔",
-  not_found: "✕",
-  outdated: "↓",
-  unmaintained: "⏳",
-  suspicious: "🔍",
-  loose_range: "≈",
-  prerelease: "🧪",
-  engine_conflict: "🔌",
+export const ISSUE_TYPE_ICONS: Record<IssueType, "alert" | "close" | "arrow" | "refresh" | "search" | "info"> = {
+  vulnerability: "alert",
+  deprecated: "close",
+  not_found: "close",
+  outdated: "arrow",
+  unmaintained: "refresh",
+  suspicious: "search",
+  loose_range: "info",
+  prerelease: "info",
+  engine_conflict: "alert",
 };
 
 export const SECTION_LABELS: Record<string, string> = {

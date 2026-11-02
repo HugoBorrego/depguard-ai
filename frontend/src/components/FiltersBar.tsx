@@ -15,6 +15,7 @@ import {
   SEVERITY_STYLES,
   type FilterState,
 } from "@/lib/format";
+import { Icon } from "./Icon";
 
 const ISSUE_TYPES = Object.keys(ISSUE_TYPE_LABELS) as IssueType[];
 const SOURCES = Object.keys(SOURCE_LABELS) as IssueSource[];
@@ -118,7 +119,7 @@ export function FiltersBar({
             className={`chip ${filters.issueTypes.includes(type) ? "chip-active" : ""}`}
             aria-pressed={filters.issueTypes.includes(type)}
           >
-            <span aria-hidden="true">{ISSUE_TYPE_ICONS[type]}</span>
+            <Icon name={ISSUE_TYPE_ICONS[type]} className="h-3.5 w-3.5" />
             {ISSUE_TYPE_LABELS[type]}
           </button>
         ))}
